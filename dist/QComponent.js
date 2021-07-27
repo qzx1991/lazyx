@@ -92,7 +92,8 @@ function QComponent() {
             }
             const debounce = instanceDebounceStore.get(this);
             return debounce
-                ? debounce.execute(() => rawForceUpdate.apply(this, arguments))
+                ? debounce.execute(() => ComponentRelyMap.has(this) &&
+                    rawForceUpdate.apply(this, arguments))
                 : rawForceUpdate.apply(this, arguments);
         };
         return Lazyable_1.Stateable()(target);

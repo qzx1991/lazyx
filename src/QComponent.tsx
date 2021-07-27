@@ -101,7 +101,11 @@ export default function QComponent() {
       }
       const debounce = instanceDebounceStore.get(this);
       return debounce
-        ? debounce.execute(() => rawForceUpdate.apply(this, arguments as any))
+        ? debounce.execute(
+            () =>
+              ComponentRelyMap.has(this) &&
+              rawForceUpdate.apply(this, arguments as any)
+          )
         : rawForceUpdate.apply(this, arguments as any);
     };
     return Stateable()(target);
