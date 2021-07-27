@@ -1,8 +1,8 @@
 {
   "name": "qzx-lazyx",
-  "version": "1.0.1",
+  "version": "1.0.5",
   "description": "reactive react framework by proxy",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
     "build": "tsc"
   },

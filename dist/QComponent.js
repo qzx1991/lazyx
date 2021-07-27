@@ -2,9 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OhMyGod = exports.useLazyable = exports.LazyableComponent = exports.classNames = exports.className = exports.ShuoldUpdate = exports.OnReceiveProps = exports.OnUpdated = exports.OnUnmount = exports.OnMounted = void 0;
 const tslib_1 = require("tslib");
-const jsx_runtime_1 = require("react/jsx-runtime");
 const qzx_ioc_1 = require("qzx-ioc");
-const react_1 = require("react");
+const react_1 = tslib_1.__importStar(require("react"));
 const Async_1 = require("./Async");
 const Lazyable_1 = require("./Lazyable");
 const LazyTask_1 = require("./LazyTask");
@@ -267,6 +266,6 @@ function useLazyable(option) {
 }
 exports.useLazyable = useLazyable;
 function OhMyGod(render) {
-    return jsx_runtime_1.jsx(LazyableComponent, { render: render }, void 0);
+    return react_1.default.createElement(LazyableComponent, { render: render });
 }
 exports.OhMyGod = OhMyGod;

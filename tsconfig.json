@@ -20,7 +20,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "jsx": "react-jsx"
+    "jsx": "react"
   },
   "include": ["src"],
   "compileOnSave": false,

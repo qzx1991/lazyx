@@ -1,3 +1,5 @@
+import { Injectable, Ioc } from 'qzx-ioc';
+
 /**是否是代理对象 */
 export const LAZYABLE_FLAG = Symbol('_$$__$$__is_lazyable');
 /**是否是一个已经proxy */
