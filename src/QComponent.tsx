@@ -16,16 +16,22 @@ onLazyable('get', (t, k, v) => {
     addRely(RUNNING_COMPONENT_INSTANCE, t, k as string);
   }
 });
-onLazyable('set', (t, k, v, ov, isAdd) => {
-  TargetRelyMap.get(t)
-    ?.get(k as string)
-    ?.forEach((instance) => instance.forceUpdate());
-});
-onLazyable('delete', (t, k, ov) => {
-  TargetRelyMap.get(t)
-    ?.get(k as string)
-    ?.forEach((instance) => instance.forceUpdate());
-});
+onLazyable('set', (t, k, v, ov, isAdd) => updateComponents(t, k as string));
+onLazyable('delete', (t, k, ov) => updateComponents(t, k as string));
+
+async function updateComponents(target: any, key: string) {
+  const instances = TargetRelyMap.get(target)?.get(key);
+  if (instances && instances.size > 0) {
+    await Promise.all(Array.from(instances).map((i) => i.forceUpdate()));
+  }
+  nextTicks.forEach((n) => typeof n === 'function' && n());
+  nextTicks = [];
+}
+
+let nextTicks: (() => any)[] = [];
+export function nextTick(h: () => any) {
+  nextTicks.push(h);
+}
 
 function runWithRecord<T>(instance: LazyableComponent, h: () => T) {
   const lastRunningInstance = RUNNING_COMPONENT_INSTANCE;
@@ -226,6 +232,19 @@ export class LazyableComponent extends Component<{
   mounted: (() => void | (() => void) | Promise<void | (() => void)>)[] = [];
   unmount: (() => void)[] = [];
 
+  private nextticks: (() => any)[] = [];
+  nexttick(h: () => any) {
+    this.nextticks.push(h);
+  }
+
+  forceUpdate(callback?: () => void) {
+    super.forceUpdate(() => {
+      callback?.();
+      this.nextticks.forEach((n) => n());
+      this.nextticks = [];
+    });
+  }
+
   ctx?: FunctionContextType<{}, {}, {}, {}> & MyContenxt = undefined;
 
   @OnMounted()
@@ -265,6 +284,7 @@ export type FunctionContextType<T, C, S, M> = M & {
   state: T;
   computed: ComputedType<C>;
   inject: ServiceType<S>;
+  nexttick: (h: () => void) => void;
 };
 
 export type FunctionalComponentConfig<
@@ -275,13 +295,13 @@ export type FunctionalComponentConfig<
   E = {}
 > = {
   state?: T;
+  computed?: C & ThisType<FunctionContextType<T, C, S, M> & E>;
+  inject?: S & ThisType<FunctionContextType<T, C, S, M> & E>;
+  methods?: M & ThisType<FunctionContextType<T, C, S, M> & E>;
   DidMount?: (
     this: FunctionContextType<T, C, S, M> & E
   ) => void | (() => void) | Promise<void | (() => void)>;
   WillUnMount?: (this: FunctionContextType<T, C, S, M> & E) => any;
-  computed?: C & ThisType<FunctionContextType<T, C, S, M> & E>;
-  inject?: S & ThisType<FunctionContextType<T, C, S, M> & E>;
-  methods?: M & ThisType<FunctionContextType<T, C, S, M> & E>;
 };
 
 export function useLazyable<T, C, S, M>(
@@ -297,11 +317,15 @@ export function useLazyable<T, C, S, M>(
     throw new Error('you are not in an render function');
   }
   const instance = RUNNING_COMPONENT_INSTANCE;
-  const ctx: FunctionContextType<T, C, S, M> & MyContenxt = {} as any;
-  option.DidMount &&
+  const ctx: FunctionContextType<T, C, S, M> & MyContenxt = {
+    nexttick(h: () => any) {
+      instance.nexttick(h);
+    },
+  } as any;
+  option?.DidMount &&
     typeof option.DidMount === 'function' &&
     instance.mounted.push(option.DidMount.bind(ctx as any));
-  option.WillUnMount &&
+  option?.WillUnMount &&
     typeof option.WillUnMount === 'function' &&
     instance.unmount.push(option.WillUnMount.bind(ctx as any));
   const state = (option.state && Lazyable(option.state as any)) || ({} as T);
@@ -351,3 +375,22 @@ export function useLazyable<T, C, S, M>(
 export function OhMyGod(render: () => ReactNode) {
   return <LazyableComponent render={render} />;
 }
+
+<LazyableComponent
+  render={(
+    ctx = useLazyable({
+      state: { count: 1 },
+      computed: {
+        c() {
+          return this.state.count;
+        },
+      },
+      methods: {
+        a() {
+          return this.state.count;
+        },
+      },
+      WillUnMount() {},
+    })
+  ) => <div>lkmlkm</div>}
+/>;

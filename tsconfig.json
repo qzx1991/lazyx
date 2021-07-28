@@ -7,7 +7,6 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitHelpers": true,
-    "noImplicitThis": false,
     "noUnusedLocals": false,
     "removeComments": true,
     "sourceMap": false,
