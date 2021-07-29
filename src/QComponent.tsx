@@ -298,10 +298,8 @@ export type FunctionalComponentConfig<
   computed?: C & ThisType<FunctionContextType<T, C, S, M> & E>;
   inject?: S & ThisType<FunctionContextType<T, C, S, M> & E>;
   methods?: M & ThisType<FunctionContextType<T, C, S, M> & E>;
-  DidMount?: (
-    this: FunctionContextType<T, C, S, M> & E
-  ) => void | (() => void) | Promise<void | (() => void)>;
-  WillUnMount?: (this: FunctionContextType<T, C, S, M> & E) => any;
+  DidMount?: () => void | (() => void) | Promise<void | (() => void)>;
+  WillUnMount?: () => any;
 };
 
 export function useLazyable<T, C, S, M>(
@@ -375,22 +373,3 @@ export function useLazyable<T, C, S, M>(
 export function OhMyGod(render: () => ReactNode) {
   return <LazyableComponent render={render} />;
 }
-
-<LazyableComponent
-  render={(
-    ctx = useLazyable({
-      state: { count: 1 },
-      computed: {
-        c() {
-          return this.state.count;
-        },
-      },
-      methods: {
-        a() {
-          return this.state.count;
-        },
-      },
-      WillUnMount() {},
-    })
-  ) => <div>lkmlkm</div>}
-/>;
